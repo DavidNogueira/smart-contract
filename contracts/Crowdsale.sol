@@ -7,7 +7,7 @@ import "./SubstratumCoin.sol";
 
 /*
   Crowdsale Smart Contract for the substratum.net project
-  This smart contract collects ETH, and in return emits SkinCoin tokens to the backers
+  This smart contract collects ETH, and in return emits SubstratumCoin tokens to the backers
 */
 contract Crowdsale is Pausable, PullPayment {
     
@@ -23,13 +23,13 @@ contract Crowdsale is Pausable, PullPayment {
 	*/
 	/* Minimum number of SubstratumCoin to sell */
 	uint public constant MIN_CAP = 10000000000000; // 10,000,000 SubstratumCoins
-	/* Maximum number of SkinCoin to sell */
+	/* Maximum number of SubstratumCoin to sell */
 	uint public constant MAX_CAP = 1000000000000000; // 1,000,000,000 SubstratumCoins
 	/* Minimum amount to invest */
 	uint public constant MIN_INVEST_ETHER = 100 finney;
 	/* Crowdsale period */
 	uint private constant CROWDSALE_PERIOD = 30 days;
-	/* Number of SkinCoins per Ether */
+	/* Number of SubstratumCoins per Ether */
 	uint public constant COIN_PER_ETHER = 5000000000; // 5,000 SubstratumCoins
 
 
@@ -105,11 +105,11 @@ contract Crowdsale is Pausable, PullPayment {
 	function receiveETH(address beneficiary) internal {
 		if (msg.value < MIN_INVEST_ETHER) throw; // Don't accept funding under a predefined threshold
 		
-		uint coinToSend = bonus(msg.value.mul(COIN_PER_ETHER).div(1 ether)); // Compute the number of SkinCoin to send
+		uint coinToSend = bonus(msg.value.mul(COIN_PER_ETHER).div(1 ether)); // Compute the number of SubstratumCoin to send
 		if (coinToSend.add(coinSentToEther) > MAX_CAP) throw;	
 
 		Backer backer = backers[beneficiary];
-		coin.transfer(beneficiary, coinToSend); // Transfer SkinCoins right now 
+		coin.transfer(beneficiary, coinToSend); // Transfer SubstratumCoins right now 
 
 		backer.coinSent = backer.coinSent.add(coinToSend);
 		backer.weiReceived = backer.weiReceived.add(msg.value); // Update the total wei collected during the crowdfunding for this backer    
@@ -124,7 +124,7 @@ contract Crowdsale is Pausable, PullPayment {
 	
 
 	/*
-	 *Compute the SkinCoin bonus according to the investment period
+	 *Compute the SubstratumCoin bonus according to the investment period
 	 */
 	function bonus(uint amount) internal constant returns (uint) {
 		if (now < startTime.add(2 days)) return amount.add(amount.div(5));   // bonus 20%
@@ -148,7 +148,7 @@ contract Crowdsale is Pausable, PullPayment {
 		if (!multisigEther.send(this.balance)) throw; // Move the remaining Ether to the multisig address
 		
 		uint remains = coin.balanceOf(this);
-		if (remains > 0) { // Burn the rest of SkinCoins
+		if (remains > 0) { // Burn the rest of SubstratumCoins
 			if (!coin.burn(remains)) throw ;
 		}
 		crowdsaleClosed = true;
@@ -170,9 +170,9 @@ contract Crowdsale is Pausable, PullPayment {
 	}
 
 	/**
-	 * Manually back SkinCoin owner address.
+	 * Manually back SubstratumCoin owner address.
 	 */
-	function backSkinCoinOwner() onlyOwner public {
+	function backSubstratumCoinOwner() onlyOwner public {
 		coin.transferOwnership(owner);
 	}
 
@@ -186,7 +186,7 @@ contract Crowdsale is Pausable, PullPayment {
 		if(remains > minCoinsToSell) throw;
 
 		Backer backer = backers[owner];
-		coin.transfer(owner, remains); // Transfer SkinCoins right now 
+		coin.transfer(owner, remains); // Transfer SubstratumCoins right now 
 
 		backer.coinSent = backer.coinSent.add(remains);
 
@@ -201,7 +201,7 @@ contract Crowdsale is Pausable, PullPayment {
 	/* 
   	 * When MIN_CAP is not reach:
   	 * 1) backer call the "approve" function of the SubstratumCoin token contract with the amount of all SubstratumCoins they got in order to be refund
-  	 * 2) backer call the "refund" function of the Crowdsale contract with the same amount of SkinCoins
+  	 * 2) backer call the "refund" function of the Crowdsale contract with the same amount of SubstratumCoins
    	 * 3) backer call the "withdrawPayments" function of the Crowdsale contract to get a refund in ETH
    	 */
 	function refund(uint _value) minCapNotReached public {
